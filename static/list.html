@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список инструментов</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+
+        .tools-list { list-style: none; padding: 0; margin-top: 20px; }
+        .tool-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+        .tool-item:hover { background-color: #f8f9fa; }
+        .tool-item:last-child { border-bottom: none; }
+
+        .tool-info { flex-grow: 1; }
+        .tool-info h4 { margin: 0 0 5px 0; color: #2c3e50; }
+        .tool-info p { margin: 2px 0; color: #555; }
+        .tool-info p strong { color: #333; }
+
+        .tool-specs { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px; font-size: 14px; }
+        .spec-badge { background-color: #e8f4fd; color: #2980b9; padding: 4px 10px; border-radius: 12px; border: 1px solid #bce0fd; }
+
+        .actions { display: flex; gap: 8px; }
+        .actions button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .actions button.view { background-color: #3498db; color: white; }
+        .actions button.view:hover { background-color: #2980b9; }
+        .actions button.edit { background-color: #f39c12; color: white; }
+        .actions button.edit:hover { background-color: #e67e22; }
+        .actions button.delete { background-color: #e74c3c; color: white; }
+        .actions button.delete:hover { background-color: #c0392b; }
+
+        .status-message { padding: 10px; margin-top: 10px; border-radius: 4px; display: none; }
+        .status-message.success { background-color: #d4edda; color: #155724; }
+        .status-message.error { background-color: #f8d7da; color: #721c24; }
+
+        .pagination-controls { display: flex; align-items: center; gap: 10px; margin-top: 20px; justify-content: space-between; }
+        .pagination-controls button { padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .pagination-controls button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        .page-info { font-weight: bold; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Полный список инструментов</h1>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
+        <input type="text" id="searchInput" placeholder="Поиск по D, Type или Name..." style="flex-grow: 1; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px;">
+        <button id="searchBtn">Поиск</button>
+        <button id="clearSearchBtn">Сброс</button>
+    </div>
+
+    <div id="pagination" style="margin-bottom: 15px;">
+        <button id="prevBtn" disabled>Назад</button>
+        <span id="pageInfo" style="margin: 0 15px;"></span>
+        <button id="nextBtn" disabled>Вперед</button>
+    </div>
+
+    <ul id="toolsList" class="tools-list"></ul>
+
+    <div id="message" class="status-message"></div>
+</div>
+
+<script>
+const API_URL = 'http://127.0.0.1:8000';
+
+let currentPage = 1;
+let currentSearch = null;
+
+// Элементы DOM
+const toolsList = document.getElementById('toolsList');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const messageBox = document.getElementById('message');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const pageInfo = document.getElementById('pageInfo');
+
+// Вспомогательная функция для отображения сообщений
+function showMessage(text, isError = false) {
+    messageBox.textContent = text;
+    messageBox.className = 'status-message';
+    messageBox.classList.toggle('error', isError);
+    messageBox.classList.toggle('success', !isError);
+    messageBox.style.display = 'block';
+    setTimeout(() => messageBox.style.display = 'none', 3000);
+}
+
+// Функция получения данных с сервера
+async function fetchTools(page = 1, search = null) {
+    currentPage = page;
+    currentSearch = search;
+
+    let url = `${API_URL}/tools/?skip=${(page - 1) * 10}&limit=10`;
+    if (search) {
+        const params = new URLSearchParams();
+        if (search.d) params.append('search_d', search.d);
+        if (search.type) params.append('search_type', search.type);
+        if (search.name) params.append('search_name', search.name);
+        url += `&${params.toString()}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const tools = await response.json();
+
+        const totalOnPage = tools.length;
+        renderTools(tools);
+
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = totalOnPage < 10;
+        pageInfo.textContent = `Страница ${page}`;
+    } catch (error) {
+        showMessage('Ошибка при загрузке инструментов', true);
+    }
+}
+
+// Функция отрисовки списка (адаптирована для просмотра)
+function renderTools(tools) {
+    toolsList.innerHTML = '';
+    if (tools.length === 0) {
+        toolsList.innerHTML = '<li style="padding: 20px; text-align: center; color: #777;">Инструменты не найдены</li>';
+        return;
+    }
+
+    tools.forEach(tool => {
+        const li = document.createElement('li');
+        li.className = 'tool-item';
+
+        // Формируем строку характеристик
+        const specs = [];
+        if (tool.L) specs.push(`L: ${tool.L}`);
+        if (tool.S) specs.push(`S: ${tool.S}`);
+        if (tool.I) specs.push(`I: ${tool.I}`);
+        if (tool.Z) specs.push(`Z: ${tool.Z}`);
+
+        li.innerHTML = `
+            <div class="tool-info">
+                <h4>${tool.Name} (${tool.Type})</h4>
+                <p><strong>D:</strong> ${tool.D}</p>
+                <p><strong>Количество:</strong> ${tool.Kol}</p>
+                <div class="tool-specs">
+                    ${specs.map(s => `<span class="spec-badge">${s}</span>`).join('')}
+                </div>
+            </div>
+            <div class="actions">
+                <button class="view" onclick="viewTool(${tool.id})">Просмотр</button>
+                <button class="edit" onclick="editTool(${tool.id})">Ред.</button>
+                <button class="delete" onclick="deleteTool(${tool.id})">Удалить</button>
+            </div>
+        `;
+        toolsList.appendChild(li);
+    });
+}
+
+// Просмотр деталей (можно расширить до отдельного модального окна)
+function viewTool(id) {
+    // В данном примере просто алерт, но здесь можно открывать детальную карточку
+    alert('Функция детального просмотра для ID ' + id + ' (можно открыть отдельную страницу или модальное окно)');
+}
+
+// Редактирование (перенаправляет на основную страницу или открывает форму)
+function editTool(id) {
+    // Если у вас SPA, можно открыть форму редактирования.
+    // Если страницы разделены, лучше перенаправить на index.html с параметром
+    window.location.href = `index.html?edit=${id}`;
+}
+
+// Удаление инструмента
+async function deleteTool(id) {
+    if (!confirm('Вы уверены, что хотите удалить этот инструмент?')) return;
+
+    try {
+        const response = await fetch(`${API_URL}/tools/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            showMessage('Инструмент удален');
+            fetchTools(currentPage, currentSearch);
+        } else {
+            showMessage('Ошибка удаления', true);
+        }
+    } catch (error) {
+        showMessage('Ошибка сети', true);
+    }
+}
+
+// Поиск
+searchBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    const searchPayload = /\d/.test(query) ? { d: query } : { name: query };
+    fetchTools(1, searchPayload);
+});
+
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    fetchTools(1, null);
+});
+
+// Пагинация
+prevBtn.addEventListener('click', () => fetchTools(currentPage - 1, currentSearch));
+nextBtn.addEventListener('click', () => fetchTools(currentPage + 1, currentSearch));
+
+// Первоначальная загрузка данных
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTools();
+});
+</script>
+
+</body>
+</html>
