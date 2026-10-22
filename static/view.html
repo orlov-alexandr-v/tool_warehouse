@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Просмотр инструмента</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 40px 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
+        .field-group { margin-bottom: 15px; }
+        .field-group label { display: block; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .field-value { padding: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
+        .actions { margin-top: 30px; text-align: right; }
+        .actions button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .actions button.edit { background-color: #f39c12; color: white; }
+        .actions button.back { background-color: #95a5a6; color: white; margin-right: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Детали инструмента</h1>
+    <div id="toolDetails"></div>
+    <div class="actions">
+        <button class="back" onclick="window.history.back()">Назад</button>
+        <button class="edit" onclick="editTool()">Редактировать</button>
+    </div>
+</div>
+
+<script>
+const API_URL = 'http://127.0.0.1:8000';
+
+// Получение ID из параметров URL
+const urlParams = new URLSearchParams(window.location.search);
+const toolId = urlParams.get('id');
+
+if (!toolId) {
+    document.getElementById('toolDetails').innerHTML = '<p style="color: #e74c3c;">ID инструмента не указан.</p>';
+} else {
+    loadToolDetails(toolId);
+}
+
+async function loadToolDetails(id) {
+    try {
+        const response = await fetch(`${API_URL}/tools/${id}`);
+        if (!response.ok) throw new Error('Инструмент не найден');
+        const tool = await response.json();
+
+        const specs = [];
+        if (tool.L) specs.push(`L: ${tool.L}`);
+        if (tool.S) specs.push(`S: ${tool.S}`);
+        if (tool.I) specs.push(`I: ${tool.I}`);
+        if (tool.Z) specs.push(`Z: ${tool.Z}`);
+
+        // Форматируем цену (пример для рублей)
+        const priceFormatted = new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB'
+        }).format(tool.price_per_unit || 0);
+
+        const totalCost = (tool.Kol || 0) * (tool.price_per_unit || 0);
+        const totalCostFormatted = new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB'
+        }).format(totalCost);
+
+        const manufacturerLink = tool.manufacturer_url
+            ? `<a href="${tool.manufacturer_url}" target="_blank" rel="noopener noreferrer">${tool.manufacturer_url}</a>`
+            : '<span style="color: #777;">—</span>';
+
+        const html = `
+            <div class="field-group">
+                <label>Наименование:</label>
+                <div class="field-value">${tool.Name}</div>
+            </div>
+            <div class="field-group">
+                <label>Тип:</label>
+                <div class="field-value">${tool.Type}</div>
+            </div>
+            <div class="field-group">
+                <label>Диаметр (D):</label>
+                <div class="field-value">${tool.D}</div>
+            </div>
+            <!-- Начало блока характеристик -->
+            ${tool.L ? `<div class="field-group">
+                <label>Общая длина (L):</label>
+                <div class="field-value">${tool.L}</div>
+            </div>` : ''}
+            ${tool.S ? `<div class="field-group">
+                <label>Диаметр хвостовика (S):</label>
+                <div class="field-value">${tool.S}</div>
+            </div>` : ''}
+            ${tool.I ? `<div class="field-group">
+                <label>Длина рабочей части (I):</label>
+                <div class="field-value">${tool.I}</div>
+            </div>` : ''}
+            ${tool.Z ? `<div class="field-group">
+                <label>Количество зубьев (Z):</label>
+                <div class="field-value">${tool.Z}</div>
+            </div>` : ''}
+            <div class="field-group">
+                <label>Количество:</label>
+                <div class="field-value">${tool.Kol}</div>
+            </div>
+            <div class="field-group">
+                <label>Цена за 1 шт.:</label>
+                <div class="field-value">${priceFormatted}</div>
+            </div>
+            <div class="field-group">
+                <label>Общая стоимость:</label>
+                <div class="field-value" style="font-weight: 600;">${totalCostFormatted}</div>
+            </div>
+            <div class="field-group">
+                <label>Ссылка на производителя:</label>
+                <div class="field-value">${manufacturerLink}</div>
+            </div>
+        `;
+        document.getElementById('toolDetails').innerHTML = html;
+    } catch (error) {
+        document.getElementById('toolDetails').innerHTML = '<p style="color: #e74c3c;">Ошибка загрузки данных.</p>';
+    }
+}
+
+function editTool() {
+    window.location.href = `/edit.html?id=${toolId}`;
+}
+</script>
+</body>
+</html>

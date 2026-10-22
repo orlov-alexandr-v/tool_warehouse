@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Список инструментов</title>
+    <title>Список инструмента</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -38,17 +38,80 @@
         .pagination-controls button { padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .pagination-controls button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
         .page-info { font-weight: bold; color: #2c3e50; }
+        .btn-main { display: inline-block; padding: 8px 16px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; transition: background-color 0.2s; } .btn-main:hover { background-color: #219150; }
+                /* --- Стили для кнопок управления --- */
+        .btn-control {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-control:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .btn-control:active {
+            transform: translateY(0);
+        }
+
+        .btn-control.secondary {
+            background-color: #95a5a6; /* Серый цвет для кнопки "Сброс" */
+        }
+
+        .btn-control.secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-control.success {
+            background-color: #27ae60; /* Зеленый цвет для кнопки "Поиск" (опционально) */
+        }
+
+        .btn-control.success:hover {
+            background-color: #219150;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-main:hover {
+            background-color: #219150;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Полный список инструментов</h1>
+    <h1>Список инструмента</h1>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
-        <input type="text" id="searchInput" placeholder="Поиск по D, Type или Name..." style="flex-grow: 1; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px;">
-        <button id="searchBtn">Поиск</button>
-        <button id="clearSearchBtn">Сброс</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 24px;">Поиск инструмента</h1>
+        <a href="index.html" class="btn-main">На главную</a>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+        <input type="text" id="searchInput" placeholder="Поиск по D, Name..." style="flex-grow: 1; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 15px;">
+        <button id="searchBtn" class="btn-control success">Поиск</button>
+        <button id="clearSearchBtn" class="btn-control secondary">Сброс</button>
     </div>
 
     <div id="pagination" style="margin-bottom: 15px;">
@@ -146,26 +209,23 @@ function renderTools(tools) {
                 </div>
             </div>
             <div class="actions">
-                <button class="view" onclick="viewTool(${tool.id})">Просмотр</button>
-                <button class="edit" onclick="editTool(${tool.id})">Ред.</button>
-                <button class="delete" onclick="deleteTool(${tool.id})">Удалить</button>
+               <button class="view" onclick="viewTool(${tool.id})">Просмотр</button>
+               <button class="edit" onclick="editTool(${tool.id})">Редактировать</button>
+               <button class="delete" onclick="deleteTool(${tool.id})">Удалить</button>
             </div>
         `;
         toolsList.appendChild(li);
     });
 }
 
-// Просмотр деталей (можно расширить до отдельного модального окна)
+// Просмотр деталей
 function viewTool(id) {
-    // В данном примере просто алерт, но здесь можно открывать детальную карточку
-    alert('Функция детального просмотра для ID ' + id + ' (можно открыть отдельную страницу или модальное окно)');
+    window.location.href = `/view.html?id=${id}`;
 }
 
-// Редактирование (перенаправляет на основную страницу или открывает форму)
+// Редактирование
 function editTool(id) {
-    // Если у вас SPA, можно открыть форму редактирования.
-    // Если страницы разделены, лучше перенаправить на index.html с параметром
-    window.location.href = `index.html?edit=${id}`;
+    window.location.href = `/edit.html?id=${id}`;
 }
 
 // Удаление инструмента

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float
 from database import Base
 
 class Tool(Base):
@@ -13,3 +13,6 @@ class Tool(Base):
     I = Column(String)
     Z = Column(String)
     Kol = Column(Integer)
+
+    price_per_unit = Column(Float, default=0.0) # Цена за 1 шт.
+    manufacturer_url = Column(String, nullable=True) # Ссылка на производителя

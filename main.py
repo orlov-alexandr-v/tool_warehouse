@@ -24,9 +24,11 @@ app.add_middleware(
 # Создаем таблицы при старте, если их нет
 models.Base.metadata.create_all(bind=database.engine)
 
+
 @app.post("/tools/", response_model=schemas.Tool)
 def create_new_tool(tool: schemas.ToolCreate, db: Session = Depends(database.get_db)):
     return crud.create_tool(db=db, tool=tool)
+
 
 @app.get("/tools/", response_model=List[schemas.Tool])
 def read_tools(
@@ -40,12 +42,18 @@ def read_tools(
     tools = crud.get_tools(db, skip=skip, limit=limit, search_d=search_d, search_type=search_type, search_name=search_name)
     return tools
 
+
 @app.get("/tools/{tool_id}", response_model=schemas.Tool)
 def read_tool(tool_id: int, db: Session = Depends(database.get_db)):
     db_tool = crud.get_tool(db, tool_id=tool_id)
     if db_tool is None:
         raise HTTPException(status_code=404, detail="Tool not found")
-    return db_tool
+
+    tool_data = schemas.Tool.from_orm(db_tool)
+    tool_data.total_cost = db_tool.Kol * (db_tool.price_per_unit or 0.0)
+
+    return tool_data
+
 
 @app.put("/tools/{tool_id}", response_model=schemas.Tool)
 def update_existing_tool(tool_id: int, tool_update: schemas.ToolUpdate, db: Session = Depends(database.get_db)):
@@ -53,6 +61,7 @@ def update_existing_tool(tool_id: int, tool_update: schemas.ToolUpdate, db: Sess
     if db_tool is None:
         raise HTTPException(status_code=404, detail="Tool not found")
     return db_tool
+
 
 @app.delete("/tools/{tool_id}", response_model=schemas.Tool)
 def delete_existing_tool(tool_id: int, db: Session = Depends(database.get_db)):

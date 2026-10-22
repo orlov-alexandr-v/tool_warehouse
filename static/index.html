@@ -4,29 +4,68 @@
     <meta charset="UTF-8">
     <title>Склад инструмента</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .section { margin-bottom: 30px; }
-        .section h2 { color: #34495e; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #2980b9; }
-        button.delete { background-color: #e74c3c; }
-        button.delete:hover { background-color: #c0392b; }
-        .tools-list { list-style: none; padding: 0; }
-        .tool-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .tool-item:last-child { border-bottom: none; }
-        .tool-info { flex-grow: 1; }
-        .tool-info p { margin: 2px 0; }
-        .actions button { margin-left: 5px; }
-        .status-message { padding: 10px; margin-top: 10px; border-radius: 4px; display: none; }
-        .status-message.success { background-color: #d4edda; color: #155724; }
-        .status-message.error { background-color: #f8d7da; color: #721c24; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #34495e;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.delete {
+            background-color: #e74c3c;
+        }
+        button.delete:hover {
+            background-color: #c0392b;
+        }
 
-        /* --- Новые стили для модального окна --- */
+        /* --- Стили для модального окна --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -54,7 +93,10 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        .modal-header h3 { margin: 0; color: #2c3e50; }
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
         .close-modal-btn {
             background: none;
             border: none;
@@ -64,7 +106,9 @@
             padding: 0;
             line-height: 1;
         }
-        .close-modal-btn:hover { color: #34495e; }
+        .close-modal-btn:hover {
+            color: #34495e;
+        }
         .modal-actions {
             display: flex;
             justify-content: flex-end;
@@ -80,27 +124,11 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <a href="list.html" style="background:#27ae60; color:white; padding:10px 15px; text-decoration:none; border-radius:4px;">Перейти к списку</a>
     </div>
-    <!-- Кнопка открытия модального окна вместо формы -->
+
+    <!-- Кнопка открытия модального окна -->
     <div class="section">
         <h2>Добавить новый инструмент</h2>
         <button id="openModalBtn">Добавить инструмент</button>
-    </div>
-
-    <div class="section">
-        <h2>Поиск и список инструментов</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="searchInput" placeholder="Поиск по D, Type или Name...">
-            <button id="searchBtn">Поиск</button>
-            <button id="clearSearchBtn">Сброс</button>
-        </div>
-
-        <div id="pagination" style="margin-bottom: 15px;">
-            <button id="prevBtn" disabled>Назад</button>
-            <span id="pageInfo" style="margin: 0 15px;"></span>
-            <button id="nextBtn" disabled>Вперед</button>
-        </div>
-
-        <ul id="toolsList" class="tools-list"></ul>
     </div>
 
     <div id="message" class="status-message"></div>
@@ -147,8 +175,15 @@
                 <label for="kol">Количество:</label>
                 <input type="number" id="kol" required>
             </div>
+            <div class="form-group">
+                <label for="price_per_unit">Цена за 1 шт.:</label>
+                <input type="number" id="price_per_unit" step="0.01" min="0" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label for="manufacturer_url">Ссылка на производителя:</label>
+                <input type="url" id="manufacturer_url" placeholder="https://example.com">
+            </div>
             <div class="modal-actions">
-                <button type="button" class="close-modal-btn" style="background-color: #95a5a6;">Отмена</button>
                 <button type="submit">Добавить</button>
             </div>
         </form>
@@ -158,20 +193,9 @@
 <script>
 const API_URL = 'http://127.0.0.1:8000';
 
-let currentPage = 1;
-let currentSearch = null;
-let editingToolId = null;
-
 // Элементы DOM
 const createForm = document.getElementById('createForm');
-const toolsList = document.getElementById('toolsList');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const clearSearchBtn = document.getElementById('clearSearchBtn');
 const messageBox = document.getElementById('message');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const pageInfo = document.getElementById('pageInfo');
 const openModalBtn = document.getElementById('openModalBtn');
 const addModal = document.getElementById('addModal');
 const closeModalBtn = document.querySelector('.close-modal-btn');
@@ -189,67 +213,11 @@ function showMessage(text, isError = false) {
 // Функции управления модальным окном
 function openModal() {
     addModal.style.display = 'flex';
-    // Сброс формы при открытии
-    createForm.reset();
+    createForm.reset(); // Сброс формы при открытии
 }
 
 function closeModal() {
     addModal.style.display = 'none';
-}
-
-// Функция получения данных с сервера
-async function fetchTools(page = 1, search = null) {
-    currentPage = page;
-    currentSearch = search;
-
-    let url = `${API_URL}/tools/?skip=${(page - 1) * 10}&limit=10`;
-    if (search) {
-        const params = new URLSearchParams();
-        if (search.d) params.append('search_d', search.d);
-        if (search.type) params.append('search_type', search.type);
-        if (search.name) params.append('search_name', search.name);
-        url += `&${params.toString()}`;
-    }
-
-    try {
-        const response = await fetch(url);
-        const tools = await response.json();
-
-        const totalOnPage = tools.length;
-        renderTools(tools);
-
-        prevBtn.disabled = page === 1;
-        nextBtn.disabled = totalOnPage < 10;
-        pageInfo.textContent = `Страница ${page}`;
-    } catch (error) {
-        showMessage('Ошибка при загрузке инструментов', true);
-    }
-}
-
-// Функция отрисовки списка
-function renderTools(tools) {
-    toolsList.innerHTML = '';
-    if (tools.length === 0) {
-        toolsList.innerHTML = '<li>Инструменты не найдены</li>';
-        return;
-    }
-
-    tools.forEach(tool => {
-        const li = document.createElement('li');
-        li.className = 'tool-item';
-        li.innerHTML = `
-            <div class="tool-info">
-                <h4>${tool.Name} (${tool.Type})</h4>
-                <p><strong>D:</strong> ${tool.D}, <strong>L:</strong> ${tool.L || '—'}, <strong>Kol:</strong> ${tool.Kol}</p>
-                <p><em>ID: ${tool.id}</em></p>
-            </div>
-            <div class="actions">
-                <button onclick="editTool(${tool.id})">Ред.</button>
-                <button onclick="deleteTool(${tool.id})" class="delete">Удалить</button>
-            </div>
-        `;
-        toolsList.appendChild(li);
-    });
 }
 
 // Создание нового инструмента
@@ -264,7 +232,9 @@ createForm.addEventListener('submit', async (e) => {
         L: document.getElementById('l').value,
         I: document.getElementById('i').value,
         Z: document.getElementById('z').value,
-        Kol: parseInt(document.getElementById('kol').value)
+        Kol: parseInt(document.getElementById('kol').value),
+        price_per_unit: parseFloat(document.getElementById('price_per_unit').value) || 0.0,
+        manufacturer_url: document.getElementById('manufacturer_url').value || null
     };
 
     try {
@@ -276,8 +246,8 @@ createForm.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             showMessage('Инструмент успешно добавлен');
-            closeModal(); // Закрываем модальное окно
-            fetchTools(currentPage, currentSearch);
+            closeModal();
+            createForm.reset(); // Очищаем форму для нового ввода
         } else {
             const error = await response.json();
             showMessage(error.detail || 'Ошибка добавления', true);
@@ -286,68 +256,6 @@ createForm.addEventListener('submit', async (e) => {
         showMessage('Ошибка сети', true);
     }
 });
-
-// Удаление инструмента
-async function deleteTool(id) {
-    if (!confirm('Вы уверены, что хотите удалить этот инструмент?')) return;
-
-    try {
-        const response = await fetch(`${API_URL}/tools/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-            showMessage('Инструмент удален');
-            fetchTools(currentPage, currentSearch);
-        } else {
-            showMessage('Ошибка удаления', true);
-        }
-    } catch (error) {
-        showMessage('Ошибка сети', true);
-    }
-}
-
-// Редактирование (упрощенное: алерт для ввода новых данных)
-function editTool(id) {
-    const newName = prompt('Введите новое название:');
-    if (!newName) return;
-
-    const newKol = parseInt(prompt('Введите новое количество:'));
-    if (isNaN(newKol)) return;
-
-    try {
-        fetch(`${API_URL}/tools/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ Name: newName, Kol: newKol })
-        })
-        .then(res => {
-            if (res.ok) {
-                showMessage('Инструмент обновлен');
-                fetchTools(currentPage, currentSearch);
-            } else {
-                showMessage('Ошибка обновления', true);
-            }
-        });
-    } catch (error) {
-        showMessage('Ошибка сети', true);
-    }
-}
-
-// Поиск
-searchBtn.addEventListener('click', () => {
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    const searchPayload = /\d/.test(query) ? { d: query } : { name: query };
-    fetchTools(1, searchPayload);
-});
-
-clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    fetchTools(1, null);
-});
-
-// Пагинация
-prevBtn.addEventListener('click', () => fetchTools(currentPage - 1, currentSearch));
-nextBtn.addEventListener('click', () => fetchTools(currentPage + 1, currentSearch));
 
 // Обработчики модального окна
 openModalBtn.addEventListener('click', openModal);
@@ -358,11 +266,6 @@ addModal.addEventListener('click', (e) => {
     if (e.target === addModal) {
         closeModal();
     }
-});
-
-// Первоначальная загрузка данных
-document.addEventListener('DOMContentLoaded', () => {
-    fetchTools();
 });
 </script>
 
