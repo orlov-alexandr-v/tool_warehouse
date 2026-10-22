@@ -16,3 +16,4 @@ class Tool(Base):
 
     price_per_unit = Column(Float, default=0.0) # Цена за 1 шт.
     manufacturer_url = Column(String, nullable=True) # Ссылка на производителя
+    

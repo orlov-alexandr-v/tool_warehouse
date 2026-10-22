@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 import models
 import schemas
 
 def get_tool(db: Session, tool_id: int):
     return db.query(models.Tool).filter(models.Tool.id == tool_id).first()
 
-def get_tools(db: Session, skip: int = 0, limit: int = 10, search_d: str = None, search_type: str = None, search_name: str = None):
+def get_tools(db: Session, skip: int = 0, limit: int = 10, search_d: str = "", search_type: str = "", search_name: str = ""):
     query = db.query(models.Tool)
 
     # Поиск (регистронезависимый, частичное совпадение)
@@ -34,6 +34,7 @@ def create_tool(db: Session, tool: schemas.ToolCreate):
     db.add(db_tool)
     db.commit()
     db.refresh(db_tool)
+    
     return db_tool
 
 def update_tool(db: Session, tool_id: int, tool_update: schemas.ToolUpdate):
@@ -49,7 +50,9 @@ def update_tool(db: Session, tool_id: int, tool_update: schemas.ToolUpdate):
 
     db.commit()
     db.refresh(db_tool)
+    
     return db_tool
+
 
 def delete_tool(db: Session, tool_id: int):
     db_tool = db.query(models.Tool).filter(models.Tool.id == tool_id).first()
@@ -57,4 +60,5 @@ def delete_tool(db: Session, tool_id: int):
         return None
     db.delete(db_tool)
     db.commit()
+    
     return db_tool

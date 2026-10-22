@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import database, models, schemas
+from . import database, models
 from sqlalchemy.orm import Session
 
 def init():
