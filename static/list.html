@@ -4,94 +4,250 @@
     <meta charset="UTF-8">
     <title>Список инструмента</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        /* --- Базовые настройки --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
 
-        .tools-list { list-style: none; padding: 0; margin-top: 20px; }
-        .tool-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
-        .tool-item:hover { background-color: #f8f9fa; }
-        .tool-item:last-child { border-bottom: none; }
+        /* --- Кнопка "На главную" --- */
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background-color: #27ae60; /* Зеленый цвет (bootstrap secondary) */
+            color: white;
+            text-decoration: none;
+            border-radius: 50px; /* Полностью скругленные края (pill shape) */
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
 
-        .tool-info { flex-grow: 1; }
-        .tool-info h4 { margin: 0 0 5px 0; color: #2c3e50; }
-        .tool-info p { margin: 2px 0; color: #555; }
-        .tool-info p strong { color: #333; }
+        /* Эффект при наведении */
+        .btn-home:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
 
-        .tool-specs { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px; font-size: 14px; }
-        .spec-badge { background-color: #e8f4fd; color: #2980b9; padding: 4px 10px; border-radius: 12px; border: 1px solid #bce0fd; }
+        /* Эффект при нажатии */
+        .btn-home:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
 
-        .actions { display: flex; gap: 8px; }
-        .actions button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .actions button.view { background-color: #3498db; color: white; }
-        .actions button.view:hover { background-color: #2980b9; }
-        .actions button.edit { background-color: #f39c12; color: white; }
-        .actions button.edit:hover { background-color: #e67e22; }
-        .actions button.delete { background-color: #e74c3c; color: white; }
-        .actions button.delete:hover { background-color: #c0392b; }
+        /* Стили для иконки внутри кнопки */
+        .btn-home svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
 
-        .status-message { padding: 10px; margin-top: 10px; border-radius: 4px; display: none; }
-        .status-message.success { background-color: #d4edda; color: #155724; }
-        .status-message.error { background-color: #f8d7da; color: #721c24; }
+        /* Поворот иконки домика при наведении */
+        .btn-home:hover svg {
+            transform: rotate(-10deg);
+        }
 
-        .pagination-controls { display: flex; align-items: center; gap: 10px; margin-top: 20px; justify-content: space-between; }
-        .pagination-controls button { padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .pagination-controls button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        .page-info { font-weight: bold; color: #2c3e50; }
-        .btn-main { display: inline-block; padding: 8px 16px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; transition: background-color 0.2s; } .btn-main:hover { background-color: #219150; }
-                /* --- Стили для кнопок управления --- */
-        .btn-control {
+        /* --- Список инструментов --- */
+        .tools-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        .tool-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .tool-item:hover {
+            background-color: #f8f9fa;
+        }
+        .tool-item:last-child {
+            border-bottom: none;
+        }
+        .tool-info {
+            flex-grow: 1;
+        }
+        .tool-info h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        .tool-info p {
+            margin: 2px 0;
+            color: #555;
+        }
+        .tool-info p strong {
+            color: #333;
+        }
+        .tool-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .spec-badge {
+            background-color: #e8f4fd;
+            color: #2980b9;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #bce0fd;
+        }
+
+        /* --- Кнопки действий (внутри карточки) --- */
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .actions button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+        }
+        .actions button:hover {
+            transform: translateY(-1px);
+        }
+        .actions button:active {
+            transform: translateY(0);
+        }
+        .actions button.view {
+            background-color: #3498db;
+            color: white;
+        }
+        .actions button.view:hover {
+            background-color: #2980b9;
+        }
+        .actions button.edit {
+            background-color: #f39c12;
+            color: white;
+        }
+        .actions button.edit:hover {
+            background-color: #e67e22;
+        }
+        .actions button.delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .actions button.delete:hover {
+            background-color: #c0392b;
+        }
+
+        /* --- Сообщения --- */
+        .status-message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* --- Пагинация (внизу) --- */
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pagination-controls button {
             padding: 8px 16px;
             background-color: #3498db;
             color: white;
-            text-decoration: none;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+        }
+        .pagination-controls button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .page-info {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 80px;
+            text-align: center;
         }
 
-        .btn-control:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        .btn-control:active {
-            transform: translateY(0);
-        }
-
-        .btn-control.secondary {
-            background-color: #95a5a6; /* Серый цвет для кнопки "Сброс" */
-        }
-
-        .btn-control.secondary:hover {
-            background-color: #7f8c8d;
-        }
-
-        .btn-control.success {
-            background-color: #27ae60; /* Зеленый цвет для кнопки "Поиск" (опционально) */
-        }
-
-        .btn-control.success:hover {
-            background-color: #219150;
-        }
-
-        .btn-main {
-            display: inline-flex;
+        /* --- Поле поиска и глобальные кнопки --- */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
             align-items: center;
-            padding: 8px 16px;
-            background-color: #27ae60;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex-grow: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .btn-control {
+            background-color: #3498db;
             color: white;
             text-decoration: none;
             border-radius: 6px;
+            padding: 8px 16px;
             font-size: 14px;
             font-weight: 500;
             transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-control:hover {
+            background-color: #2980b9;
+        }
+        .btn-control.secondary {
+            background-color: #95a5a6;
+        }
+        .btn-control.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .btn-main {
+            background-color: #27ae60;
+            text-decoration: none;
         }
         .btn-main:hover {
             background-color: #219150;
@@ -104,25 +260,33 @@
     <h1>Список инструмента</h1>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 24px;">Поиск инструмента</h1>
-        <a href="index.html" class="btn-main">На главную</a>
+        <h2 style="margin: 0; font-size: 20px; font-weight: 500;">Поиск инструмента</h2>
+    <a href="index.html" class="btn-home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9L12 2l9 7-4 4-9 7-9-7-4-4z"></path>
+        </svg>
+        На главную
+    </a>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
-        <input type="text" id="searchInput" placeholder="Поиск по D, Name..." style="flex-grow: 1; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 15px;">
-        <button id="searchBtn" class="btn-control success">Поиск</button>
+    <!-- Блок поиска -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Поиск по D, Name...">
         <button id="clearSearchBtn" class="btn-control secondary">Сброс</button>
     </div>
 
-    <div id="pagination" style="margin-bottom: 15px;">
-        <button id="prevBtn" disabled>Назад</button>
-        <span id="pageInfo" style="margin: 0 15px;"></span>
-        <button id="nextBtn" disabled>Вперед</button>
-    </div>
-
+    <!-- Список инструментов -->
     <ul id="toolsList" class="tools-list"></ul>
 
+    <!-- Сообщения (ошибки/успех) -->
     <div id="message" class="status-message"></div>
+
+    <!-- Пагинация (перемещена вниз) -->
+    <div id="pagination" class="pagination-controls">
+        <button id="prevBtn" disabled>Назад</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn" disabled>Вперед</button>
+    </div>
 </div>
 
 <script>
@@ -130,16 +294,17 @@ const API_URL = 'http://127.0.0.1:8000';
 
 let currentPage = 1;
 let currentSearch = null;
+const LIMIT = 4; // Количество элементов на странице
 
 // Элементы DOM
 const toolsList = document.getElementById('toolsList');
 const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
 const clearSearchBtn = document.getElementById('clearSearchBtn');
 const messageBox = document.getElementById('message');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const pageInfo = document.getElementById('pageInfo');
+const paginationBlock = document.getElementById('pagination'); // Контейнер пагинации
 
 // Вспомогательная функция для отображения сообщений
 function showMessage(text, isError = false) {
@@ -151,12 +316,27 @@ function showMessage(text, isError = false) {
     setTimeout(() => messageBox.style.display = 'none', 3000);
 }
 
+// Функция управления видимостью пагинации
+function togglePaginationVisibility(show) {
+    if (show) {
+        paginationBlock.style.display = 'flex';
+    } else {
+        paginationBlock.style.display = 'none';
+    }
+}
+
 // Функция получения данных с сервера
 async function fetchTools(page = 1, search = null) {
     currentPage = page;
     currentSearch = search;
 
-    let url = `${API_URL}/tools/?skip=${(page - 1) * 10}&limit=10`;
+    let url = `${API_URL}/tools/?skip=${(page - 1) * LIMIT}&limit=${LIMIT + 1}`;
+    /*
+       Запрашиваем LIMIT + 1 элемент.
+       Это "хак": если пришло 11 элементов (при лимите 10), значит есть следующая страница.
+       11-й элемент мы не рисуем, он нужен только для логики nextBtn.
+    */
+
     if (search) {
         const params = new URLSearchParams();
         if (search.d) params.append('search_d', search.d);
@@ -167,21 +347,28 @@ async function fetchTools(page = 1, search = null) {
 
     try {
         const response = await fetch(url);
-        const tools = await response.json();
+        const rawTools = await response.json();
 
-        const totalOnPage = tools.length;
-        renderTools(tools);
+        // Определяем, есть ли следующая страница
+        const hasNextPage = rawTools.length > LIMIT;
 
-        prevBtn.disabled = page === 1;
-        nextBtn.disabled = totalOnPage < 10;
-        pageInfo.textContent = `Страница ${page}`;
+        // Обрезаем массив до нужного лимита для отрисовки
+        const tools = hasNextPage ? rawTools.slice(0, LIMIT) : rawTools;
+
+        renderTools(tools, hasNextPage);
+
+        // Показываем пагинацию только если данных больше, чем на одну страницу
+        togglePaginationVisibility(tools.length > 0 && (currentPage > 1 || hasNextPage));
+
     } catch (error) {
         showMessage('Ошибка при загрузке инструментов', true);
+        console.error('Fetch error:', error);
+        togglePaginationVisibility(false); // Скрываем пагинацию при ошибке
     }
 }
 
-// Функция отрисовки списка (адаптирована для просмотра)
-function renderTools(tools) {
+// Функция отрисовки списка
+function renderTools(tools, hasNextPage) {
     toolsList.innerHTML = '';
     if (tools.length === 0) {
         toolsList.innerHTML = '<li style="padding: 20px; text-align: center; color: #777;">Инструменты не найдены</li>';
@@ -192,7 +379,6 @@ function renderTools(tools) {
         const li = document.createElement('li');
         li.className = 'tool-item';
 
-        // Формируем строку характеристик
         const specs = [];
         if (tool.L) specs.push(`L: ${tool.L}`);
         if (tool.S) specs.push(`S: ${tool.S}`);
@@ -216,14 +402,17 @@ function renderTools(tools) {
         `;
         toolsList.appendChild(li);
     });
+
+    // Обновляем состояние кнопок
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = !hasNextPage;
+    pageInfo.textContent = `Страница ${currentPage}`;
 }
 
-// Просмотр деталей
+// Навигация по карточкам
 function viewTool(id) {
     window.location.href = `/view.html?id=${id}`;
 }
-
-// Редактирование
 function editTool(id) {
     window.location.href = `/edit.html?id=${id}`;
 }
@@ -238,22 +427,38 @@ async function deleteTool(id) {
             showMessage('Инструмент удален');
             fetchTools(currentPage, currentSearch);
         } else {
-            showMessage('Ошибка удаления', true);
+            const errorText = await response.text();
+            showMessage('Ошибка удаления: ' + errorText, true);
         }
     } catch (error) {
         showMessage('Ошибка сети', true);
     }
 }
 
-// Поиск
-searchBtn.addEventListener('click', () => {
-    const query = searchInput.value.trim();
-    if (!query) return;
+/* --- ОПТИМИЗИРОВАННЫЙ ДИНАМИЧЕСКИЙ ПОИСК --- */
+let inputTimer = null;
+const DEBOUNCE_DELAY = 300;
 
-    const searchPayload = /\d/.test(query) ? { d: query } : { name: query };
-    fetchTools(1, searchPayload);
+searchInput.addEventListener('input', (event) => {
+    const query = event.target.value.trim().replace(/,/g, '.');
+    event.target.value = query;
+
+    if (inputTimer) clearTimeout(inputTimer);
+
+    if (!query) {
+        inputTimer = setTimeout(() => {
+            fetchTools(1, null);
+        }, DEBOUNCE_DELAY);
+        return;
+    }
+
+    inputTimer = setTimeout(() => {
+        const searchPayload = /\d/.test(query) ? { d: query } : { name: query };
+        fetchTools(1, searchPayload);
+    }, DEBOUNCE_DELAY);
 });
 
+// Кнопка сброса
 clearSearchBtn.addEventListener('click', () => {
     searchInput.value = '';
     fetchTools(1, null);
@@ -263,11 +468,10 @@ clearSearchBtn.addEventListener('click', () => {
 prevBtn.addEventListener('click', () => fetchTools(currentPage - 1, currentSearch));
 nextBtn.addEventListener('click', () => fetchTools(currentPage + 1, currentSearch));
 
-// Первоначальная загрузка данных
+// Первоначальная загрузка
 document.addEventListener('DOMContentLoaded', () => {
     fetchTools();
 });
 </script>
-
 </body>
 </html>
