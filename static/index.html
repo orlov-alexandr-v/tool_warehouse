@@ -121,14 +121,25 @@
 
 <div class="container">
     <h1>Управление складом инструмента</h1>
-    <h2>Список:</h2>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Склад:</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
         <a href="list.html" style="background:#27ae60;
-            color:white;
-            padding:10px 15px;
-            text-decoration:none;
-            border-radius:4px;">
-            Перейти к списку
+        color:white;
+        padding:10px 15px;
+        text-decoration:none;
+        border-radius:4px;
+        flex-grow: 1;
+        text-align: center;">
+            Перейти к складу
+        </a>
+        <a href="report.html" style="background:#8e44ad;
+        color:white;
+        padding:10px 15px;
+        text-decoration:none;
+        border-radius:4px;
+        flex-grow: 1;
+        text-align: center;">
+            Отчет склада
         </a>
     </div>
 
@@ -248,7 +259,8 @@ createForm.addEventListener('submit', async (e) => {
         const response = await fetch(`${API_URL}/tools/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTool)
+            body: JSON.stringify(newTool),
+            credentials: 'include'
         });
 
         if (response.ok) {

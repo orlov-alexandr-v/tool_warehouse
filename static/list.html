@@ -340,7 +340,6 @@ async function fetchTools(page = 1, search = null) {
     if (search) {
         const params = new URLSearchParams();
         if (search.d) params.append('search_d', search.d);
-        if (search.type) params.append('search_type', search.type);
         if (search.name) params.append('search_name', search.name);
         url += `&${params.toString()}`;
     }
@@ -396,7 +395,7 @@ function renderTools(tools, hasNextPage) {
             </div>
             <div class="actions">
                <button class="view" onclick="viewTool(${tool.id})">Просмотр</button>
-               <button class="edit" onclick="editTool(${tool.id})">Редактировать</button>
+               <button class="edit" onclick="editTool(${tool.id}, ${currentPage})">Редактировать</button>
                <button class="delete" onclick="deleteTool(${tool.id})">Удалить</button>
             </div>
         `;
@@ -413,8 +412,9 @@ function renderTools(tools, hasNextPage) {
 function viewTool(id) {
     window.location.href = `/view.html?id=${id}`;
 }
-function editTool(id) {
-    window.location.href = `/edit.html?id=${id}`;
+function editTool(id, page) {
+    const pageNumber = parseInt(page) || 1;
+    window.location.href = `/edit.html?id=${id}&ref_page=${pageNumber}`;
 }
 
 // Удаление инструмента
@@ -440,11 +440,15 @@ let inputTimer = null;
 const DEBOUNCE_DELAY = 300;
 
 searchInput.addEventListener('input', (event) => {
-    const query = event.target.value.trim().replace(/,/g, '.');
+    // 1. Нормализация: убираем лишние пробелы и приводим разделители к единому виду (точка)
+    let query = event.target.value.trim().replace(/,/g, '.');
+    // Если вы хотите, чтобы поиск по имени нечувствительно относился к регистру на уровне JS,
+    // можно сделать query = query.toLowerCase(); (но лучше, чтобы это делал сервер)
     event.target.value = query;
 
     if (inputTimer) clearTimeout(inputTimer);
 
+    // Если поле пустое — сбрасываем поиск
     if (!query) {
         inputTimer = setTimeout(() => {
             fetchTools(1, null);
@@ -453,12 +457,31 @@ searchInput.addEventListener('input', (event) => {
     }
 
     inputTimer = setTimeout(() => {
-        const searchPayload = /\d/.test(query) ? { d: query } : { name: query };
+        const searchPayload = {};
+
+        // 2. Проверка для числового поля D:
+        // Если строка состоит только из цифр, точек, запятых и знаков (например, "12.5", "-5", "1/2" не пройдут),
+        // ищем строго по D. Это предотвратит ложное срабатывание на "Молоток 5".
+        const isPureNumber = /^[\d.-]+$/.test(query);
+
+        if (isPureNumber) {
+            searchPayload.d = query;
+        }
+
+        // 3. Поиск по имени:
+        // Если строка не является чистым числом ИЛИ если она содержит буквы, ищем по имени.
+        // Это позволяет искать "Молоток 5" одновременно по обоим полям.
+        if (!isPureNumber || /[a-zA-Zа-яА-Я]/.test(query)) {
+            searchPayload.name = query;
+        }
+
+        // Отправляем запрос. Если isPureNumber=true и букв нет, payload будет {d: "..."}.
+        // Если есть буквы, payload будет {d: "...", name: "..."}.
         fetchTools(1, searchPayload);
     }, DEBOUNCE_DELAY);
 });
 
-// Кнопка сброса
+// Кнопка сброса (оставьте как есть, она работает корректно)
 clearSearchBtn.addEventListener('click', () => {
     searchInput.value = '';
     fetchTools(1, null);
@@ -470,8 +493,11 @@ nextBtn.addEventListener('click', () => fetchTools(currentPage + 1, currentSearc
 
 // Первоначальная загрузка
 document.addEventListener('DOMContentLoaded', () => {
-    fetchTools();
+    const urlParams = new URLSearchParams(window.location.search);
+    const startPage = parseInt(urlParams.get('page')) || 1;
+    fetchTools(startPage, null);
 });
+
 </script>
 </body>
 </html>

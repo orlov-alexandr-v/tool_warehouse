@@ -1,14 +1,15 @@
 from pydantic import BaseModel, HttpUrl, model_validator
 from typing import Optional
-from database import Base
 
+
+#----Tool----
 class ToolBase(BaseModel):
     Type: str
     Name: str
     D: str
     S: Optional[str] = None
     L: Optional[str] = None
-    I: Optional[str] = None
+    I: Optional[str] = None  # noqa: E741
     Z: Optional[str] = None
     Kol: int
     price_per_unit: float = 0.0
@@ -23,7 +24,7 @@ class ToolUpdate(BaseModel):
     D: Optional[str] = None
     S: Optional[str] = None
     L: Optional[str] = None
-    I: Optional[str] = None
+    I: Optional[str] = None  # noqa: E741
     Z: Optional[str] = None
     Kol: Optional[int] = None
     price_per_unit: Optional[float] = None

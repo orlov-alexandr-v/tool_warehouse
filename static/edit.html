@@ -195,7 +195,7 @@
         </div>
 
         <div class="actions">
-            <button type="button" class="back" onclick="window.history.back()">Отмена</button>
+            <button type="button" class="back" onclick="goBackToList()">Отмена</button>
             <button type="submit" class="save">Сохранить</button>
         </div>
     </form>
@@ -215,6 +215,61 @@ if (!toolId) {
 } else {
     loadToolForEdit(toolId);
 }
+
+// Функция для получения номера страницы из URL
+function getPageFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageParam = urlParams.get('ref_page');
+
+    // Если параметра нет, он пустой или не является числом — возвращаем 1
+    if (!pageParam) return 1;
+
+    const pageNumber = parseInt(pageParam);
+    return isNaN(pageNumber) ? 1 : pageNumber;
+}
+
+// Универсальная функция возврата (явно возвращает false для HTML-атрибута)
+function goBackToList() {
+    const page = getPageFromUrl();
+
+    // Защита: если по какой-то причине page все равно undefined, не делать переход
+    if (!page) return;
+
+    // Явно задаем протокол и хост, чтобы исключить любые относительные пути к API
+    const targetUrl = `http://127.0.0.1:8000/list.html?page=${page}`;
+    window.location.href = targetUrl;
+}
+
+// Обработчик формы сохранения
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Гарантируем, что форма не отправится как обычный HTML-запрос
+
+    // ... (ваш код сбора данных data) ...
+
+    try {
+        const response = await fetch(`${API_URL}/tools/${toolId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Не удалось сохранить изменения');
+        }
+
+        showMessage('Изменения успешно сохранены!', false);
+
+        // Используем window.location.href напрямую внутри JS, это самый надежный способ
+        setTimeout(() => {
+            const page = getPageFromUrl();
+            window.location.href = `/list.html?page=${page}`;
+        }, 1500);
+
+    } catch (error) {
+        showMessage('Ошибка при сохранении: ' + error.message, true);
+    }
+});
 
 async function loadToolForEdit(id) {
     try {
@@ -291,8 +346,18 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
         showMessage('Изменения успешно сохранены!', false);
 
         // Исправлено: возврат на страницу списка, а не на главную
+        // Внутри document.getElementById('editForm').addEventListener('submit', ...)
+
         setTimeout(() => {
-            window.location.href = '/list.html';
+            const safePage = getPageFromUrl(); // Получаем значение заново
+
+            if (safePage) {
+                // Используем window.location.replace, чтобы в истории не осталось страницы редактирования
+                window.location.replace(`/list.html?page=${safePage}`);
+            } else {
+                // На крайний случай — просто на главную страницу списка
+                window.location.href = '/list.html';
+            }
         }, 1500);
 
     } catch (error) {

@@ -6,7 +6,7 @@ import schemas
 def get_tool(db: Session, tool_id: int):
     return db.query(models.Tool).filter(models.Tool.id == tool_id).first()
 
-def get_tools(db: Session, skip: int = 0, limit: int = 10, search_d: str = "", search_type: str = "", search_name: str = ""):
+def get_tools(db: Session, skip: int = 0, search_d: str = "", search_type: str = "", search_name: str = ""):
     query = db.query(models.Tool)
 
     # Поиск (регистронезависимый, частичное совпадение)
@@ -20,7 +20,7 @@ def get_tools(db: Session, skip: int = 0, limit: int = 10, search_d: str = "", s
             conditions.append(models.Tool.Name.ilike(f"%{search_name}%"))
         query = query.filter(or_(*conditions))
 
-    return query.offset(skip).limit(limit).all()
+    return query.offset(skip).all()
 
 def create_tool(db: Session, tool: schemas.ToolCreate):
     # Преобразуем Pydantic-модель в словарь
@@ -34,7 +34,7 @@ def create_tool(db: Session, tool: schemas.ToolCreate):
     db.add(db_tool)
     db.commit()
     db.refresh(db_tool)
-    
+
     return db_tool
 
 def update_tool(db: Session, tool_id: int, tool_update: schemas.ToolUpdate):
@@ -50,9 +50,8 @@ def update_tool(db: Session, tool_id: int, tool_update: schemas.ToolUpdate):
 
     db.commit()
     db.refresh(db_tool)
-    
-    return db_tool
 
+    return db_tool
 
 def delete_tool(db: Session, tool_id: int):
     db_tool = db.query(models.Tool).filter(models.Tool.id == tool_id).first()
@@ -60,5 +59,5 @@ def delete_tool(db: Session, tool_id: int):
         return None
     db.delete(db_tool)
     db.commit()
-    
+
     return db_tool
