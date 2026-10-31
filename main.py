@@ -1,4 +1,5 @@
 # main.py
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -22,3 +23,7 @@ app.add_middleware(
 app.include_router(routers.tools.router, prefix="/tools", tags=[""])
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
