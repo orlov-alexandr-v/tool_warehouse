@@ -226,15 +226,12 @@ function generateReport(tools) {
         orderEmptyEl.style.display = 'none';
         toOrder.forEach(tool => {
             const li = document.createElement('li');
-            // Убран класс static-row, добавлен курсор-указатель для подсказки кликабельности
             li.className = 'order-item';
             li.style.cursor = 'pointer';
 
-            // Используем template literal для формирования строки
             li.innerHTML = `
                 <span class="name" style="display: flex; align-items: center; gap: 8px;">
                     ${tool.Name} (D: ${tool.D})
-                    <!-- Иконка внешней ссылки для визуальной подсказки -->
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.6;">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                         <polyline points="15 3 21 3 21 9"></polyline>
@@ -244,16 +241,15 @@ function generateReport(tools) {
                 <span class="qty">Ост: ${parseInt(tool.Kol, 10)}</span>
             `;
 
-            // Обработчик клика: открывает страницу просмотра с ID инструмента
             li.onclick = function() {
-                // Предполагается, что ID инструмента приходит в поле 'id' или 'ID'
                 const toolId = tool.id || tool.ID;
                 if (toolId) {
-                    window.open(`view.html?id=${toolId}`, '_blank');
+                    // Переход в текущей вкладке
+                    window.location.href = `view.html?id=${toolId}`;
                 }
             };
 
-            orderListEl.appendChild(li);
+        orderListEl.appendChild(li);
         });
     }
 }
