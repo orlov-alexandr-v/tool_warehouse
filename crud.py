@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
+from fastapi.exceptions import HTTPException
 import models
 import schemas
 
@@ -61,3 +63,34 @@ def delete_tool(db: Session, tool_id: int):
     db.commit()
 
     return db_tool
+
+#---User---
+def get_users(db: Session):
+    return db.query(models.User).all()
+
+def create_user(db: Session, user: schemas.UserCreat):
+    # Преобразуем Pydantic-модель в словарь
+    user_data = user.model_dump()
+
+    db_user = models.User(**user_data)
+    db.add(db_user)
+    try:
+        db.commit()
+        #db.refresh(db_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Пользователь с такими данными уже существует")
+
+    return db_user
+
+
+def delete_user(db: Session, user_id: int):
+    # Ищем пользователя
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return False
+
+    # Удаляем и фиксируем транзакцию
+    db.delete(user)
+    db.commit()
+    return True

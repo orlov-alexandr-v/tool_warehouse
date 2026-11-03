@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, model_validator
+from pydantic import BaseModel, HttpUrl, model_validator, Field
 from typing import Optional
 
 
@@ -42,3 +42,22 @@ class Tool(ToolBase):
 
     class Config:
         from_attributes = True
+
+
+#---User---
+class User(BaseModel):
+    name: str
+    surname: str
+
+    class Config:
+        from_attributes = True
+
+class UserCreat(User):
+    name: str = Field(..., alias='Name')
+    surname: str = Field(..., alias='Surname')
+
+    class Config:
+        populate_by_name = True
+
+class ReadUser(User):
+    id: int
