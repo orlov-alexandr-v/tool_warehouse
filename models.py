@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, func
 from sqlalchemy.orm import declarative_base
 from database import Base
 
@@ -28,3 +28,15 @@ class User(Base):
     surname = Column(String, nullable=False, index=True)
     name = Column(String, nullable=False, index=True)
 
+
+class HistoryTool(Base):
+    __tablename__ = 'history_tools'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    tool_id = Column(Integer, ForeignKey('tools.id'), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    issue_date = Column(DateTime(timezone=True), server_default=func.now())
+
+    class Config:
+        extra = "ignore"

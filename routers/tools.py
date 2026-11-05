@@ -7,7 +7,7 @@ import schemas
 import database
 import crud
 
-router = APIRouter(prefix="")
+router = APIRouter()
 
 @router.post("/", response_model=schemas.Tool)
 def create_new_tool(tool: schemas.ToolCreate, db: Session = Depends(database.get_db)):
@@ -28,7 +28,6 @@ def read_tools(
 
     return tools
 
-
 @router.get("/{tool_id}", response_model=schemas.Tool)
 def read_tool(tool_id: int, db: Session = Depends(database.get_db)):
     db_tool = crud.get_tool(db, tool_id=tool_id)
@@ -36,7 +35,6 @@ def read_tool(tool_id: int, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=404, detail="Tool not found")
 
     return db_tool
-
 
 @router.put("/{tool_id}", response_model=schemas.Tool)
 def update_existing_tool(tool_id: int, tool_update: schemas.ToolUpdate, db: Session = Depends(database.get_db)):
