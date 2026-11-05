@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <link href="https://unpkg.com/@phosphor-icons/web@2.0.0/src/css/icons.css" rel="stylesheet">
     <title>Склад инструмента</title>
     <style>
         body {
@@ -141,60 +142,187 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        /* --- Базовые переменные --- */
+        :root {
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --success-color: #27ae60;
+            --success-hover: #229954;
+            --action-color: #8e44ad;
+            --action-hover: #7d3c98;
+            --nav-color: #1c7330;
+            --nav-hover: #145a22;
+            --danger-color: #e74c3c;
+            --danger-hover: #c0392b;
+            
+            /* Фон стал плотнее (было 0.2, стало 0.35) */
+            --bg-blur: rgba(255, 255, 255, 0.35); 
+            
+            /* Границы стали четче (было 0.6, стало 0.5) */
+            --border-alpha: rgba(255, 255, 255, 0); 
+            
+            --text-color: bleak;
+        }
 
+        /* --- Контейнер кнопок --- */
+        .tools-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            /* Разрешаем перенос, если кнопки не помещаются */
+            flex-wrap: wrap;
+        }
+
+        /* --- Сами кнопки (растягиваем) --- */
+        .btn {
+            /* Растягиваем на доступную ширину */
+            flex: 1 1 calc(33.333% - 10px); 
+            
+            justify-content: center;
+            text-align: center;
+            
+            /* Убираем фиксированную минимальную ширину, чтобы кнопка сжималась */
+            min-width: auto;
+            padding: 14px 20px; /* Чуть увеличили вертикальный паддинг для красоты */
+        }
+
+        /* --- Адаптивность --- */
+
+        /* Планшеты: 2 кнопки в ряд */
+        @media (max-width: 900px) {
+            .btn {
+                flex: 1 1 calc(50% - 10px);
+            }
+        }
+
+        /* Мобильные: 1 кнопка на всю ширину */
+        @media (max-width: 600px) {
+            .btn {
+                flex: 1 1 100%;
+                padding: 14px 10px;
+            }
+        }
+
+        /* Остальные стили кнопок (цвета, стекло, тени) остаются прежними */
+        .btn {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            color: black;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Блик при наведении */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 
+                        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Цветовые вариации (плотность 35%) */
+        .btn-primary {
+            background: rgba(52, 152, 219, 0.35);
+            border-color: rgba(52, 152, 219, 0.5);
+        }
+        .btn-primary:hover { background: rgba(52, 152, 219, 0.45); }
+
+        .btn-success {
+            background: rgba(39, 174, 96, 0.35);
+            border-color: rgba(39, 174, 96, 0.5);
+        }
+        .btn-success:hover { background: rgba(39, 174, 96, 0.45); }
+
+        .btn-danger, button.delete {
+            background: rgba(231, 76, 60, 0.35);
+            border-color: rgba(231, 76, 60, 0.5);
+        }
+        .btn-danger:hover, button.delete:hover { background: rgba(231, 76, 60, 0.45); }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+            .btn {
+                min-width: 140px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            .tools-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }   
+        
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Управление складом инструмента</h1>
+    
+    <!-- Блок навигации -->
+    <div class="section">
         <h2>Склад:</h2>
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-        <a href="list.html" style="background:#27ae60;
-        color:white;
-        padding:10px 15px;
-        text-decoration:none;
-        border-radius:4px;
-        flex-grow: 1;
-        text-align: center;">
-            Список
-        </a>
-
-        <a href="users.html" style="background:#6e5f73;
-        color:white;
-        padding:10px 15px;
-        text-decoration:none;
-        border-radius:4px;
-        flex-grow: 1;
-        text-align: center;">
-            Сотрудники
-        </a>
-
-        <a href="report.html" style="background:#8e44ad;
-        color:white;
-        padding:10px 15px;
-        text-decoration:none;
-        border-radius:4px;
-        flex-grow: 1;
-        text-align: center;">
-            Отчет
-        </a>
+        <div class="tools-buttons">
+            <a href="list.html" class="btn btn-success">
+                <i class="ph-list"></i> Список
+            </a>
+            <a href="users.html" class="btn btn-success">
+                <i class="ph-users"></i> Сотрудники
+            </a>
+            <a href="report.html" class="btn btn-success">
+                <i class="ph-file-text"></i> Отчет
+            </a>
+        </div>
     </div>
 
-    <!-- Кнопка открытия модального окна -->
+    <!-- Блок действий -->
     <div class="section">
         <h2>Инструмент:</h2>
-
-        <button id="openModalBtn">Добавить инструмент</button>
-
-        <a href="tools_to_issue.html" style="text-decoration:none;">
-            <button id="">Выдать инструмент</button>
-        </a>
-
-        <a href="history_to_tools.html" style="text-decoration:none;">
-            <button id="">История выдачи</button>
-        </a>
-
+        <div class="tools-buttons">
+            <a id="openModalBtn" class="btn btn-primary">
+                <i class="ph-plus-circle"></i> Добавить инструмент
+            </a>
+            <a href="tools_to_issue.html" class="btn btn-primary">
+                <i class="ph-arrow-bend-up-left"></i> Выдать инструмент
+            </a>
+            <a href="history_to_tools.html" class="btn btn-primary">
+                <i class="ph-clock-counter-clockwise"></i> История выдачи
+            </a>
+        </div>
     </div>
 
     <div id="message" class="status-message"></div>
