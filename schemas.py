@@ -1,6 +1,6 @@
 from pydantic import BaseModel, HttpUrl, model_validator, Field
 from typing import Optional
-
+from datetime import datetime
 
 #----Tool----
 class ToolBase(BaseModel):
@@ -61,3 +61,19 @@ class UserCreat(User):
 
 class ReadUser(User):
     id: int
+
+#---Issue---
+class IssueCreate(BaseModel):
+    user_id: int
+    tool_id: int
+    quantity: int
+
+class HistoryTool(BaseModel):
+    id: int
+    user_id: int
+    tool_id: int
+    quantity: int
+    issue_date: datetime
+
+    class Config:
+        from_attributes = True

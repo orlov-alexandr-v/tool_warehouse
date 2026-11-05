@@ -94,3 +94,39 @@ def delete_user(db: Session, user_id: int):
     db.delete(user)
     db.commit()
     return True
+
+#---issue---
+def issue_tool(db: Session, user_id: int, tool_id: int, quantity: int):
+    # Используем joinedload, чтобы сразу загрузить данные инструмента и избежать лишних запросов
+    db_tool = db.query(models.Tool).filter(models.Tool.id == tool_id).first()
+
+    if not db_tool:
+        raise HTTPException(status_code=404, detail="Инструмент не найден")
+
+    if db_tool.Kol < quantity:
+        raise HTTPException(status_code=400, detail=f"Недостаточно инструмента на складе. В наличии: {db_tool.Kol}")
+
+    try:
+        # 1. Вычитаем количество (атомарная операция)
+        db_tool.Kol -= quantity
+
+        # 2. Создаем запись в истории
+        history_entry = models.HistoryTool(
+            user_id=user_id,
+            tool_id=tool_id,
+            quantity=quantity
+        )
+        db.add(history_entry)
+
+        # 3. Обновляем данные инструмента в сессии
+        db.add(db_tool)
+
+        # 4. Фиксируем транзакцию
+        db.commit()
+        db.refresh(db_tool)
+
+        return {"detail": "success", "tool_name": db_tool.Name, "remaining": db_tool.Kol}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
