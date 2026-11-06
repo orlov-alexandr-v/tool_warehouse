@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link href="https://unpkg.com/@phosphor-icons/web@2.0.0/src/css/icons.css" rel="stylesheet">
+
     <title>Склад инструмента</title>
     <style>
         body {
@@ -154,13 +154,13 @@
             --nav-hover: #145a22;
             --danger-color: #e74c3c;
             --danger-hover: #c0392b;
-            
+
             /* Фон стал плотнее (было 0.2, стало 0.35) */
-            --bg-blur: rgba(255, 255, 255, 0.35); 
-            
+            --bg-blur: rgba(255, 255, 255, 0.35);
+
             /* Границы стали четче (было 0.6, стало 0.5) */
-            --border-alpha: rgba(255, 255, 255, 0); 
-            
+            --border-alpha: rgba(255, 255, 255, 0);
+
             --text-color: bleak;
         }
 
@@ -176,11 +176,11 @@
         /* --- Сами кнопки (растягиваем) --- */
         .btn {
             /* Растягиваем на доступную ширину */
-            flex: 1 1 calc(33.333% - 10px); 
-            
+            flex: 1 1 calc(33.333% - 10px);
+
             justify-content: center;
             text-align: center;
-            
+
             /* Убираем фиксированную минимальную ширину, чтобы кнопка сжималась */
             min-width: auto;
             padding: 14px 20px; /* Чуть увеличили вертикальный паддинг для красоты */
@@ -240,12 +240,12 @@
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), 
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         .btn:active {
             transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1),
                         inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
@@ -284,15 +284,23 @@
                 flex-direction: column;
                 gap: 10px;
             }
-        }   
-        
+        }
+
+        /* Изображение */
+        .fullscreen-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30vh; /* 100% высоты экрана */
+        }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Управление складом инструмента</h1>
-    
+
     <!-- Блок навигации -->
     <div class="section">
         <h2>Склад:</h2>
@@ -327,7 +335,9 @@
 
     <div id="message" class="status-message"></div>
 
-    <img src="images/cnc.png" alt="CNC" style="width: 100%; height: auto; height: 450px;">
+    <div class="fullscreen-center">
+        <img src="images/cnc2.png" alt="CNC" style="width: 400px; height: 200px;">
+    </div>
 </div>
 
 <!-- Модальное окно -->

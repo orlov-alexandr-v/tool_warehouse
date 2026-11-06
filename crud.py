@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload, session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from fastapi.exceptions import HTTPException
+from typing import List
 import models
 import schemas
 
@@ -130,3 +131,63 @@ def issue_tool(db: Session, user_id: int, tool_id: int, quantity: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
+#---history---
+def get_history_list(
+    db: Session,
+    *,
+    search_user: str | None = None,
+    search_tool: str | None = None
+) -> List[schemas.HistoryItem]:
+
+    # 1. Базовый запрос с eager loading (загружаем связи для отображения)
+    query = db.query(models.HistoryTool).options(
+        selectinload(models.HistoryTool.user),
+        selectinload(models.HistoryTool.tool)
+    )
+
+    # 2. Фильтрация (добавляем JOIN только если ищем)
+    if search_user:
+        search_term = f"%{search_user.lower()}%"
+        # Явно говорим SQLAlchemy сделать JOIN для фильтрации
+        query = query.join(models.HistoryTool.user).filter(
+            or_(
+                func.lower(models.User.surname).ilike(search_term),
+                func.lower(models.User.name).ilike(search_term),
+            )
+        )
+
+    if search_tool:
+        search_term = f"%{search_tool.lower()}%"
+        query = query.join(models.HistoryTool.tool).filter(
+            func.lower(models.Tool.name).ilike(search_term)
+        )
+
+    history_items_db = query.all()
+
+    # 3. Преобразование (теперь item.user и item.tool НЕ None)
+    result: List[schemas.HistoryItem] = []
+    for item in history_items_db:
+        # Защита на случай, если в БД все же NULL (хотя join его не вернет)
+
+        # Формируем ФИО: Фамилия + Имя (защита от None в БД)
+        if item.user:
+            user_fio_string = " ".join([item.user.name, item.user.surname])
+        else:
+            user_fio_string = "[Нет пользователя]"
+
+        # Формируем название инструмента
+        if item.tool:
+            tool_name_string = item.tool.Name
+        else:
+            tool_name_string = "[Инструмент удален]"
+
+        result.append(schemas.HistoryItem(
+            id=item.id,
+            issue_date=item.issue_date,
+            user_fio=user_fio_string,
+            tool_name=tool_name_string,
+            quantity=item.quantity
+        ))
+
+    return result

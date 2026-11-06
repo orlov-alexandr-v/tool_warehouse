@@ -77,3 +77,10 @@ class HistoryTool(BaseModel):
 
     class Config:
         from_attributes = True
+
+class HistoryItem(BaseModel):
+    id: int
+    issue_date: datetime
+    user_fio: str
+    tool_name: str
+    quantity: int
