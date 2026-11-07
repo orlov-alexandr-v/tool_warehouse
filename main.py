@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from routers import tools, users, issue
+from routers import tools, users, issue, history
 
 app = FastAPI(title="Tool Warehouse API")
 
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(tools.router, prefix="/tools", tags=[""])
 app.include_router(users.router, prefix="/users", tags=[""])
 app.include_router(issue.router, prefix="/issue", tags=[""])
+app.include_router(history.router)
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 

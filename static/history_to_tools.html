@@ -1,12 +1,414 @@
-<!-- Created: 05.11.2026 by aleksandr.orlov -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional/EN">
-<html>
-  <head>
-    <title>История выдачи</title>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-    <meta name="generator" content="PyScripter">
-  </head>
-  <body>
-    История выдачи
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>История выдачи инструмента</title>
+    <style>
+        /* --- Базовые настройки (скопированы из вашего файла для единства стиля) --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Кнопка "На главную" --- */
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background-color: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-home:hover { background-color: #5a6268; transform: translateY(-2px); }
+        .btn-home:active { transform: translateY(0); }
+        .btn-home svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+        .btn-home:hover svg { transform: rotate(-10deg); }
+
+        /* --- Специфичные стили для истории выдачи --- */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex-grow: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .btn-control {
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-control:hover { background-color: #2980b9; }
+        .btn-control.secondary { background-color: #95a5a6; }
+        .btn-control.secondary:hover { background-color: #7f8c8d; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f8f9fa;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+        th.sort-asc::after {
+            content: "▲";
+            position: absolute;
+            right: 10px;
+            font-size: 10px;
+        }
+        th.sort-desc::after {
+            content: "▼";
+            position: absolute;
+            right: 10px;
+            font-size: 10px;
+        }
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .pagination-controls button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination-controls button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .page-info {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .status-message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status-message.success { background-color: #d4edda; color: #155724; }
+        .status-message.error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>История выдачи инструмента</h1>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 500;">Фильтрация</h2>
+        <a href="index.html" class="btn-home">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 9L12 2l9 7-4 4-9 7-9-7-4-4z"></path>
+            </svg>
+            На главную
+        </a>
+    </div>
+
+    <!-- Блок поиска -->
+    <div class="search-bar">
+        <input type="text" id="searchUser" placeholder="Поиск по Фамилии...">
+        <input type="text" id="searchTool" placeholder="Поиск по наименованию инструмента...">
+        <button id="clearSearchBtn" class="btn-control secondary">Сброс</button>
+    </div>
+
+    <!-- Таблица истории -->
+    <table id="historyTable">
+        <thead>
+        <tr>
+            <th data-key="issue_date">Дата выдачи</th>
+            <th data-key="user_fio">ФИ</th>
+            <th data-key="tool_name">Наименование инструмента</th>
+            <th data-key="quantity">Выдано, шт.</th>
+        </tr>
+        </thead>
+        <tbody id="historyBody">
+        <!-- Данные вставятся сюда через JS -->
+        </tbody>
+    </table>
+
+    <!-- Сообщения -->
+    <div id="message" class="status-message"></div>
+
+    <!-- Пагинация -->
+    <div id="pagination" class="pagination-controls">
+        <button id="prevBtn" disabled>Назад</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn" disabled>Вперед</button>
+    </div>
+</div>
+
+<script>
+const API_URL = 'http://127.0.0.1:8000';
+
+let allHistoryData = []; // Сюда сохранится ВЕСЬ массив с бэкенда
+let currentPage = 1;
+const LIMIT = 10;
+
+// Элементы DOM
+const historyBody = document.getElementById('historyBody');
+const searchUser = document.getElementById('searchUser');
+const searchTool = document.getElementById('searchTool');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const messageBox = document.getElementById('message');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const pageInfo = document.getElementById('pageInfo');
+const paginationBlock = document.getElementById('pagination');
+const tableHead = document.querySelector('#historyTable thead');
+
+function showMessage(text, isError = false) {
+    messageBox.textContent = text;
+    messageBox.className = 'status-message';
+    messageBox.classList.toggle('error', isError);
+    messageBox.classList.toggle('success', !isError);
+    messageBox.style.display = 'block';
+    setTimeout(() => messageBox.style.display = 'none', 3000);
+}
+
+function togglePaginationVisibility(show) {
+    paginationBlock.style.display = show ? 'flex' : 'none';
+}
+
+function formatDate(isoString) {
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+// Сортировка массива в памяти (JS)
+function sortHistory(data, key, direction) {
+    const sorted = [...data];
+    sorted.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+        if (key === 'issue_date') {
+            valA = new Date(valA).getTime();
+            valB = new Date(valB).getTime();
+        }
+        if (valA < valB) return direction === 'asc' ? -1 : 1;
+        if (valA > valB) return direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+    return sorted;
+}
+
+//функция загрузки
+async function fetchHistory() {
+    const userQuery = searchUser.value.trim();
+    const toolQuery = searchTool.value.trim();
+
+    try {
+        // 1. Проверка базового URL
+        console.log('Базовый API_URL из константы:', API_URL);
+
+        const url = new URL(`${API_URL}/history/`);
+
+        // Раскомментируйте эти строки, если хотите проверить передачу фильтров
+        //if (userQuery) url.searchParams.append('search_user', userQuery);
+        //if (toolQuery) url.searchParams.append('search_tool', toolQuery);
+
+        // 2. Проверка итогового URL, который уходит в сеть
+        console.log('Итоговый URL запроса:', url.toString());
+
+        const response = await fetch(url);
+
+        // 3. Проверка статуса и заголовков ответа
+        console.log('Статус ответа (response.status):', response.status);
+        console.log('OK (response.ok):', response.ok);
+        console.log('Заголовки ответа (response.headers):', Object.fromEntries(response.headers.entries()));
+
+        // Если бэкенд вернул 404 или 500, response.ok будет false
+        if (!response.ok) {
+            // 4. Получение текста ошибки от сервера (FastAPI часто присылает JSON с деталями)
+            const errorText = await response.text();
+            console.error('Текст тела ошибки от сервера:', errorText);
+
+            // Выкидываем ошибку, чтобы попасть в catch
+            throw new Error(`Server error: ${response.status}. Body: ${errorText}`);
+        }
+
+        // 5. Проверка полученных данных до сортировки
+        const rawData = await response.json();
+        console.log('Сырой JSON с бэкенда:', rawData);
+
+        // Сохраняем ВСЕ данные
+        allHistoryData = rawData;
+
+        // Сразу сортируем по дате (новые сверху) после получения
+        allHistoryData = sortHistory(allHistoryData, 'issue_date', 'desc');
+
+        renderTable();
+    } catch (error) {
+        // 6. Ловим сетевые ошибки (CORS, DNS, обрыв соединения)
+        console.error('Критическая ошибка fetch (сетевая или синтаксис JSON):', error);
+        showMessage('Ошибка при загрузке истории', true);
+    }
+}
+
+// Функция отрисовки (теперь берет срез из allHistoryData)
+function renderTable() {
+    const userQuery = searchUser.value.trim().toLowerCase();
+    const toolQuery = searchTool.value.trim().toLowerCase();
+
+    // 1. Фильтрация
+    let filteredData = allHistoryData.filter(item => {
+
+        // Защита от null/undefined в user_fio
+        const user_fio_for_search = item.user_fio ? item.user_fio.toLowerCase() : "";
+        const userMatch = user_fio_for_search.includes(userQuery);
+
+        // Защита от null/undefined в tool_name
+        const tool_name_for_search = item.tool_name ? item.tool_name.toLowerCase() : "";
+        const toolMatch = tool_name_for_search.includes(toolQuery);
+
+        return userMatch && toolMatch;
+    });
+
+    // 2. Пагинация (срез массива)
+    const start = (currentPage - 1) * LIMIT;
+    const end = start + LIMIT;
+    const pageData = filteredData.slice(start, end);
+
+    // 3. Отрисовка
+    historyBody.innerHTML = '';
+    if (pageData.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="4" style="text-align: center; color: #777; padding: 40px;">Записи не найдены</td>`;
+        historyBody.appendChild(row);
+    } else {
+        pageData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${formatDate(item.issue_date)}</td>
+                <td>${item.user_fio}</td>
+                <td>${item.tool_name}</td>
+                <td>${item.quantity}</td>
+            `;
+            historyBody.appendChild(row);
+        });
+    }
+
+    // 4. Обновление пагинации
+    const totalPages = Math.ceil(filteredData.length / LIMIT) || 1;
+    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+    togglePaginationVisibility(filteredData.length > 0);
+}
+
+/* --- ОБРАБОТЧИКИ --- */
+
+// Сортировка по клику (теперь работает мгновенно)
+tableHead.addEventListener('click', (event) => {
+    const th = event.target.closest('th');
+    if (!th || !th.dataset.key) return;
+
+    const key = th.dataset.key;
+    let direction = 'asc';
+    if (th.classList.contains('sort-asc')) {
+        direction = 'desc';
+    }
+
+    // Обновляем классы в заголовках
+    Array.from(tableHead.querySelectorAll('th')).forEach(header => {
+        header.classList.remove('sort-asc', 'sort-desc');
+    });
+    th.classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+
+    // Сортируем данные в памяти
+    allHistoryData = sortHistory(allHistoryData, key, direction);
+    currentPage = 1;
+    renderTable();
+});
+
+// Поиск (фильтрует уже загруженный массив)
+function handleSearchInput() {
+    currentPage = 1;
+    renderTable();
+}
+searchUser.addEventListener('input', handleSearchInput);
+searchTool.addEventListener('input', handleSearchInput);
+
+clearSearchBtn.addEventListener('click', () => {
+    searchUser.value = '';
+    searchTool.value = '';
+    fetchHistory(); // Перезагружаем полный список с бэкенда
+});
+
+// Пагинация
+prevBtn.addEventListener('click', () => {
+    currentPage--;
+    renderTable();
+});
+nextBtn.addEventListener('click', () => {
+    currentPage++;
+    renderTable();
+});
+
+// Первоначальная загрузка
+document.addEventListener('DOMContentLoaded', () => {
+    fetchHistory();
+});
+</script>
+</body>
 </html>
