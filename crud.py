@@ -191,3 +191,14 @@ def get_history_list(
         ))
 
     return result
+
+def delete_history(db: Session, history_id: int):
+    history = db.query(models.HistoryTool).filter(models.HistoryTool.id == history_id).first()
+    
+    if not history:
+        return False
+
+    # Удаляем и фиксируем транзакцию
+    db.delete(history)
+    db.commit()
+    return True

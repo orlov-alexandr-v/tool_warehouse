@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from database import Base
-
 
 class Tool(Base):
     __tablename__ = "tools"
@@ -16,10 +15,11 @@ class Tool(Base):
     Z = Column(String)
     Kol = Column(Integer)
 
-    price_per_unit = Column(Float, default=0.0) # Цена за 1 шт.
-    manufacturer_url = Column(String, nullable=True) # Ссылка на производителя
+    price_per_unit = Column(Float, default=0.0)
+    manufacturer_url = Column(String, nullable=True)
 
-    history = relationship("HistoryTool", back_populates="tool")
+    # Используем backref со строковым именем класса
+    history = relationship("HistoryTool", backref=backref("tool", lazy="select"))
 
 class User(Base):
     __tablename__ = "users"
@@ -28,7 +28,7 @@ class User(Base):
     surname = Column(String, nullable=False, index=True)
     name = Column(String, nullable=False, index=True)
 
-    history = relationship("HistoryTool", back_populates="user")
+    history = relationship("HistoryTool", backref=backref("user", lazy="select"))
 
 class HistoryTool(Base):
     __tablename__ = 'history_tools'
@@ -38,6 +38,3 @@ class HistoryTool(Base):
     tool_id = Column(Integer, ForeignKey('tools.id'), nullable=False)
     quantity = Column(Integer, nullable=False)
     issue_date = Column(DateTime(timezone=True), server_default=func.now())
-
-    user = relationship("User", back_populates="history")
-    tool = relationship("Tool", back_populates="history")

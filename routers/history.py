@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, Query
+from fastapi import Depends, APIRouter, HTTPException, Query
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -23,4 +23,13 @@ def read_history(
         search_user=search_user,
         search_tool=search_tool
     )
+    return history
+
+@router.delete("/history/{historyId}/")
+def delete_hystor(historyId: int, db: Session = Depends(database.get_db)):
+    history = crud.delete_history(db, history_id=historyId);
+
+    if history is None:
+            raise HTTPException(status_code=404, detail="history not found")
+    
     return history

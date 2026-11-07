@@ -145,6 +145,42 @@
         }
         .status-message.success { background-color: #d4edda; color: #155724; }
         .status-message.error { background-color: #f8d7da; color: #721c24; }
+        /*--удаление--*/
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .btn-delete:active {
+            transform: scale(0.95);
+        }
+
+        /* Чтобы последняя колонка не растягивалась */
+        #historyTable th:last-child,
+        #historyTable td:last-child {
+            width: 50px;
+            min-width: 50px;
+        }   
+
     </style>
 </head>
 <body>
@@ -331,18 +367,24 @@ function renderTable() {
 
     // 3. Отрисовка
     historyBody.innerHTML = '';
+
     if (pageData.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="4" style="text-align: center; color: #777; padding: 40px;">Записи не найдены</td>`;
+        // Выводим заглушку на все 5 колонок (span нужен для корректного colspan)
+        row.innerHTML = `<td colspan="5" style="text-align: center; color: #777; padding: 40px;">Записи не найдены</td>`;
         historyBody.appendChild(row);
     } else {
         pageData.forEach(item => {
             const row = document.createElement('tr');
+            // Кнопка добавлена здесь, в каждой строке с данными
             row.innerHTML = `
                 <td>${formatDate(item.issue_date)}</td>
                 <td>${item.user_fio}</td>
                 <td>${item.tool_name}</td>
                 <td>${item.quantity}</td>
+                <td style="text-align: center; width: 50px;">
+                    <button class="btn-delete" data-id="${item.id}">✕</button>
+                </td>
             `;
             historyBody.appendChild(row);
         });
@@ -403,6 +445,39 @@ prevBtn.addEventListener('click', () => {
 nextBtn.addEventListener('click', () => {
     currentPage++;
     renderTable();
+});
+
+// Функция удаления записи
+async function deleteHistoryItem(historyId) {
+    try {
+        const response = await fetch(`${API_URL}/history/${historyId}/`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            showMessage('Запись успешно удалена');
+            // После успешного удаления перезагружаем данные с сервера, 
+            // чтобы обновить пагинацию и фильтры
+            fetchHistory(); 
+        } else {
+            const errorData = await response.json();
+            showMessage(`Ошибка: ${errorData.detail || response.statusText}`, true);
+        }
+    } catch (error) {
+        showMessage('Сетевая ошибка при удалении', true);
+    }
+}
+
+// Делегирование клика по кнопке удаления (работает быстрее, чем добавлять listener в цикле)
+historyBody.addEventListener('click', (event) => {
+    if (event.target.classList.contains('btn-delete')) {
+        const historyId = event.target.dataset.id;
+        
+        // Подтверждение удаления
+        if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+            deleteHistoryItem(historyId);
+        }
+    }
 });
 
 // Первоначальная загрузка
